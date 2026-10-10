@@ -12,6 +12,10 @@ CREATE TABLE users (
     avatar VARCHAR(255) DEFAULT 'default.png',
     email_notifications BOOLEAN DEFAULT TRUE,
     is_active BOOLEAN DEFAULT TRUE,
+    email_verified_at DATETIME NULL DEFAULT NULL,
+    email_verification_token CHAR(64) NULL DEFAULT NULL,
+    email_verification_expires DATETIME NULL DEFAULT NULL,
+    email_verification_sent_at DATETIME NULL DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

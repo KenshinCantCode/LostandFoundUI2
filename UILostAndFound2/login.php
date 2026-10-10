@@ -9,6 +9,7 @@ if ($auth->isLoggedIn()) {
 }
 
 $error = '';
+$needsVerification = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = sanitize($_POST['username'] ?? '');
@@ -23,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect(SITE_URL . '/dashboard.php');
         } else {
             $error = $result['message'];
+            $needsVerification = !empty($result['unverified']);
         }
     }
 }
@@ -52,6 +54,9 @@ require_once 'includes/header.php';
 
         <?php if ($error): ?>
         <div class="mb-5 flex items-start gap-3 rounded-xl border border-red-100 bg-red-50 p-4 text-sm text-red-700" role="alert"><i class="fas fa-circle-exclamation mt-0.5"></i><span><?= $error ?></span></div>
+        <?php endif; ?>
+        <?php if ($needsVerification): ?>
+        <p class="mb-5 text-sm text-slate-500">Didn't get the email? <a href="resend-verification.php" class="font-bold text-coral hover:underline">Resend verification link</a>.</p>
         <?php endif; ?>
 
         <form method="POST" action="" class="space-y-5">

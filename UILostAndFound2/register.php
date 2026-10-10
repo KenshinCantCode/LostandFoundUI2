@@ -37,16 +37,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $result = $auth->register($username, $email, $password, $full_name, $role);
         if ($result['success']) {
-            // Send welcome email (optional)
             try {
-                sendWelcomeEmail($email, $full_name);
-            } catch (Exception $e) {
-                // Log the error but don't prevent registration
-                error_log('Failed to send welcome email: ' . $e->getMessage());
+                $sent = sendEmailVerificationEmail($email, $full_name, $result['verification_token']);
+            } catch (Throwable $e) {
+                error_log('Failed to send verification email: ' . $e->getMessage());
+                $sent = false;
             }
 
-            setFlash('success', 'Registration successful! Welcome to ' . SITE_NAME . '.');
-            redirect(SITE_URL . '/dashboard.php');
+            if (!$sent) {
+                $auth->releaseEmailVerificationCooldown($email, $result['verification_token']);
+                error_log('Verification email could not be sent to newly registered account.');
+                setFlash('warning', 'Your account was created, but we could not send the verification email. Please try resending it.');
+                redirect(SITE_URL . '/resend-verification.php');
+            }
+
+            setFlash('success', 'Account created. Check your email for a verification link before signing in.');
+            redirect(SITE_URL . '/login.php');
         } else {
             $error = $result['message'];
         }
